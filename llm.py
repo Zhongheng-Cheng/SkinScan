@@ -21,6 +21,10 @@ class SkinCondition(BaseModel):
     common_treatments: str
     recommendations: str
 
+    def __str__(self):
+        attributes = vars(self)
+        return '<br>'.join(f"> {key.replace('_', ' ').title()}: {value}" for key, value in attributes.items())
+
 def pydantic_gemini(
     model_name, output_class, image_documents, prompt_template_str
 ):
@@ -47,16 +51,6 @@ def generate_img_response(img_path):
 You are an expert dermatologist specializing in skin conditions. Your job is to analyze the provided skin condition images and come up with a possible diagnosis anda treatment plan.
 """
 
-    results = []
-    # for img_doc in documents:
-    #     pydantic_response = pydantic_gemini(
-    #         "models/gemini-1.5-pro",
-    #         SkinCondition,
-    #         [img_doc],
-    #         prompt_template_str,
-    #     )
-    #     results.append(pydantic_response)
-
     pydantic_response = pydantic_gemini(
         "models/gemini-1.5-pro",
         SkinCondition,
@@ -67,4 +61,4 @@ You are an expert dermatologist specializing in skin conditions. Your job is to 
     return str(pydantic_response)
 
 if __name__ == "__main__":
-    print(type(generate_img_response("static/example_images/img_1.jpeg")))
+    print(generate_img_response("static/example_images/img_1.jpeg"))

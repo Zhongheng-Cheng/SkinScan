@@ -33,7 +33,8 @@ def upload_image():
 
 @app.route('/img_analyze', methods=['POST'])
 def img_analyze():
-    return jsonify({'message': generate_img_response(app.config["UPLOADED_FILE_PATH"])})
+    response = "<br>" + generate_img_response(app.config["UPLOADED_FILE_PATH"])
+    return jsonify({'message': response})
 
 def generate_response(user_message):
     return f"You said: {user_message}"
