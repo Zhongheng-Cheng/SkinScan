@@ -1,5 +1,6 @@
 example_images/
 tmp_*/
+*.ipynb
 
 # System files
 .DS_Store
