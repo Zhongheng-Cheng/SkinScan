@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 load_dotenv("GOOGLE_API_KEY")
+import os, shutil
 
 from llama_index.multi_modal_llms.gemini import GeminiMultiModal
 from llama_index.core.multi_modal_llms.generic_utils import load_image_urls
@@ -80,6 +81,11 @@ def generate_query_engine(pydantic_response):
     text_node.metadata = metadata
     nodes = [text_node]
 
+    storage_path = "qdrant_storage"
+
+    # Create a new storage folder when creating a query engine
+    if os.path.exists(storage_path):
+        shutil.rmtree(storage_path)
 
     # Initialize Qdrant client with a new storage path
     client = qdrant_client.QdrantClient(path="qdrant_storage")
