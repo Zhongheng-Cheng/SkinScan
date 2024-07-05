@@ -1,1 +1,10 @@
 flask
+python-dotenv
+llama-index-multi-modal-llms-gemini
+llama-index-vector-stores-qdrant
+llama-index-embeddings-gemini
+llama-index-llms-gemini
+llama-index
+google-generativeai
+matplotlib
+qdrant_client
