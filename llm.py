@@ -9,6 +9,14 @@ from llama_index.core.output_parsers import PydanticOutputParser
 from llama_index.core.schema import TextNode
 from llama_index.core import SimpleDirectoryReader
 from pydantic import BaseModel
+from llama_index.vector_stores.qdrant import QdrantVectorStore
+from llama_index.core import Settings
+from llama_index.core import StorageContext
+import qdrant_client
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, ServiceContext
+from llama_index.core import VectorStoreIndex, StorageContext
+from llama_index.embeddings.gemini import GeminiEmbedding
+from llama_index.llms.gemini import Gemini
 
 # #gemini_pro = GeminiMultiModal(model_name="models/gemini-pro-vision")
 # gemini_pro = GeminiMultiModal(model_name="models/gemini-1.5-pro")
@@ -58,7 +66,60 @@ You are an expert dermatologist specializing in skin conditions. Your job is to 
         prompt_template_str,
     )
     
-    return str(pydantic_response)
+    return pydantic_response
+
+
+def generate_query_engine(pydantic_response):
+    text_node = TextNode()
+    metadata = {}
+    for r in pydantic_response:
+        if r[0] == "description":
+            text_node.text = r[1]
+        else:
+            metadata[r[0]] = r[1]
+    text_node.metadata = metadata
+    nodes = [text_node]
+
+
+    # Initialize Qdrant client with a new storage path
+    client = qdrant_client.QdrantClient(path="new_qdrant_storage_path")
+    vector_store = QdrantVectorStore(client=client, collection_name="collection")
+
+    #client = qdrant_client.QdrantClient(path="qdrant_gemini_3")
+    #vector_store = QdrantVectorStore(client=client, collection_name="collection")
+
+    llm = Gemini(
+        model="models/gemini-1.5-pro",
+        temperature=0.5,
+        max_output_tokens=512,
+    )
+    embed_model = GeminiEmbedding(
+        model_name="models/embedding-001"
+    )
+    service_context = ServiceContext.from_defaults(llm=llm, embed_model=embed_model)
+
+    storage_context = StorageContext.from_defaults(vector_store=vector_store)
+
+    index = VectorStoreIndex(
+        nodes=nodes,
+        storage_context=storage_context,
+        service_context=service_context,
+    )
+
+    query_engine = index.as_query_engine(
+        similarity_top_k=1,
+    )
+
+    return query_engine
+
+def generate_text_response(query_engine, prompt):
+    response = str(query_engine.query(prompt))
+    return response
 
 if __name__ == "__main__":
-    print(generate_img_response("static/example_images/img_1.jpeg"))
+    result = generate_img_response("static/example_images/img_1.jpeg")
+    print(str(result))
+    query_engine = generate_query_engine(result)
+    text_response = generate_text_response(query_engine, "What is the diagnosis and treatment")
+    print("===")
+    print(text_response)
