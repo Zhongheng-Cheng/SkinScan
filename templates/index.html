@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chatbox</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div id="chat-container">
+        <h1>Chatbox</h1>
+        <div id="chatbox"></div>
+        <input type="text" id="message" placeholder="Type a message...">
+        <button id="send">Send</button>
+        <input type="file" id="imageUpload" accept="image/*">
+    </div>
+
+    <script>
+        document.getElementById('send').addEventListener('click', function() {
+            const message = document.getElementById('message').value;
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `message=${message}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                const chatbox = document.getElementById('chatbox');
+                chatbox.innerHTML += `<div>You: ${message}</div>`;
+                chatbox.innerHTML += `<div>Bot: ${data.message}</div>`;
+                document.getElementById('message').value = '';
+                chatbox.scrollTop = chatbox.scrollHeight;
+            });
+        });
+
+        document.getElementById('imageUpload').addEventListener('change', function() {
+            const file = this.files[0];
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                const base64String = reader.result.replace("data:", "").replace(/^.+,/, "");
+                fetch('/upload_image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ image: base64String })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const chatbox = document.getElementById('chatbox');
+                    chatbox.innerHTML += `<div>You: <img src="data:image/png;base64,${data.url}" alt="uploaded image" style="max-width: 100%;"></div>`;
+                    chatbox.scrollTop = chatbox.scrollHeight;
+                });
+            };
+            reader.readAsDataURL(file);
+        });
+    </script>
+</body>
+</html>
