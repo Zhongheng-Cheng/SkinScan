@@ -47,7 +47,26 @@
             .then(data => {
                 const chatbox = document.getElementById('chatbox');
                 chatbox.innerHTML += `<div>You: <img src="${data.url}" alt="uploaded image" style="max-width: 90%;"></div>`;
+                const analyzingMessageId = `analyzing-${Date.now()}`;
+                const botAnalyzingMessage = `<div id="${analyzingMessageId}">Bot: Analyzing image...</div>`;
+                chatbox.innerHTML += botAnalyzingMessage;
                 chatbox.scrollTop = chatbox.scrollHeight;
+
+                fetch('/img_analyze', {
+                    method: 'POST',
+                    body: JSON.stringify({ imageUrl: data.url }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const analyzingMessageElement = document.getElementById(analyzingMessageId);
+                    if (analyzingMessageElement) {
+                        analyzingMessageElement.innerHTML = `Bot: ${data.message}`;
+                    }
+                    chatbox.scrollTop = chatbox.scrollHeight;
+                });
             });
         });
     </script>

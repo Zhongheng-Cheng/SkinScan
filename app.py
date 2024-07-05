@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 import os, shutil
+from llm import generate_img_response
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/tmp_uploads'
@@ -26,12 +27,16 @@ def upload_image():
         return jsonify({'error': 'No selected file'}), 400
     if file:
         filename = file.filename
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
-        return jsonify({'url': filepath})
+        app.config["UPLOADED_FILE_PATH"] = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(app.config["UPLOADED_FILE_PATH"])
+        return jsonify({'url': app.config["UPLOADED_FILE_PATH"]})
+
+@app.route('/img_analyze', methods=['POST'])
+def img_analyze():
+    return jsonify({'message': generate_img_response(app.config["UPLOADED_FILE_PATH"])})
 
 def generate_response(user_message):
-    return f"你说: {user_message}"
+    return f"You said: {user_message}"
 
 if __name__ == '__main__':
     app.run(debug=True)
