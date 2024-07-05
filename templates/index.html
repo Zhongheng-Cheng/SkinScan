@@ -36,24 +36,19 @@
 
         document.getElementById('imageUpload').addEventListener('change', function() {
             const file = this.files[0];
-            const reader = new FileReader();
-            reader.onloadend = function() {
-                const base64String = reader.result.replace("data:", "").replace(/^.+,/, "");
-                fetch('/upload_image', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ image: base64String })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const chatbox = document.getElementById('chatbox');
-                    chatbox.innerHTML += `<div>You: <img src="data:image/png;base64,${data.url}" alt="uploaded image" style="max-width: 100%;"></div>`;
-                    chatbox.scrollTop = chatbox.scrollHeight;
-                });
-            };
-            reader.readAsDataURL(file);
+            const formData = new FormData();
+            formData.append('image', file);
+
+            fetch('/upload_image', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const chatbox = document.getElementById('chatbox');
+                chatbox.innerHTML += `<div>You: <img src="${data.url}" alt="uploaded image" style="max-width: 90%;"></div>`;
+                chatbox.scrollTop = chatbox.scrollHeight;
+            });
         });
     </script>
 </body>

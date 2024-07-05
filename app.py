@@ -1,10 +1,14 @@
 from flask import Flask, render_template, request, jsonify
-import base64
+import os, shutil
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'static/tmp_uploads'
 
 @app.route('/')
 def home():
+    if os.path.exists(app.config['UPLOAD_FOLDER']):
+        shutil.rmtree(app.config['UPLOAD_FOLDER'])
+    os.makedirs(app.config['UPLOAD_FOLDER'])
     return render_template('index.html')
 
 @app.route('/chat', methods=['POST'])
@@ -15,14 +19,19 @@ def chat():
 
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
-    data = request.get_json()
-    if 'image' not in data:
-        return jsonify({'error': 'No image data'}), 400
-    image_data = data['image']
-    return jsonify({'url': image_data})
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image part'}), 400
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    if file:
+        filename = file.filename
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        return jsonify({'url': filepath})
 
 def generate_response(user_message):
-    return f"You said: {user_message}"
+    return f"你说: {user_message}"
 
 if __name__ == '__main__':
     app.run(debug=True)
