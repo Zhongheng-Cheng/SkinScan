@@ -1,3 +1,6 @@
+example_images/
+tmp_*/
+
 # System files
 .DS_Store
 
