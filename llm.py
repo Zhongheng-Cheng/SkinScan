@@ -82,7 +82,7 @@ def generate_query_engine(pydantic_response):
 
 
     # Initialize Qdrant client with a new storage path
-    client = qdrant_client.QdrantClient(path="new_qdrant_storage_path")
+    client = qdrant_client.QdrantClient(path="qdrant_storage")
     vector_store = QdrantVectorStore(client=client, collection_name="collection")
 
     #client = qdrant_client.QdrantClient(path="qdrant_gemini_3")

@@ -18,8 +18,13 @@
         document.getElementById('send').addEventListener('click', function() {
             const message = document.getElementById('message').value;
             const chatbox = document.getElementById('chatbox');
-            chatbox.innerHTML += `<div>You: ${message}<br></div>`;
+            chatbox.innerHTML += `<div>You: ${message}</div><br>`;
             document.getElementById('message').value = '';
+            const analyzingMessageId = `analyzing-${Date.now()}`;
+            const botAnalyzingMessage = `<div id="${analyzingMessageId}">Bot: Thinking...</div><br>`;
+            chatbox.innerHTML += botAnalyzingMessage;
+            chatbox.scrollTop = chatbox.scrollHeight;
+
             fetch('/chat', {
                 method: 'POST',
                 headers: {
@@ -29,7 +34,10 @@
             })
             .then(response => response.json())
             .then(data => {
-                chatbox.innerHTML += `<div>Bot: ${data.message}<br></div>`;
+                const analyzingMessageElement = document.getElementById(analyzingMessageId);
+                if (analyzingMessageElement) {
+                    analyzingMessageElement.innerHTML = `Bot: ${data.message}<br>`;
+                }
                 chatbox.scrollTop = chatbox.scrollHeight;
             });
         });
@@ -46,9 +54,9 @@
             .then(response => response.json())
             .then(data => {
                 const chatbox = document.getElementById('chatbox');
-                chatbox.innerHTML += `<div>You: <img src="${data.url}" alt="uploaded image" style="max-width: 90%;"><br></div>`;
+                chatbox.innerHTML += `<div>You: <img src="${data.url}" alt="uploaded image" style="max-width: 90%;"></div><br>`;
                 const analyzingMessageId = `analyzing-${Date.now()}`;
-                const botAnalyzingMessage = `<div id="${analyzingMessageId}">Bot: Analyzing image...<br></div>`;
+                const botAnalyzingMessage = `<div id="${analyzingMessageId}">Bot: Analyzing image...</div><br>`;
                 chatbox.innerHTML += botAnalyzingMessage;
                 chatbox.scrollTop = chatbox.scrollHeight;
 
