@@ -1,7 +1,7 @@
 example_images/
 tmp_*/
 *.ipynb
-qdreant_storage/
+qdrant_storage/
 
 # System files
 .DS_Store
