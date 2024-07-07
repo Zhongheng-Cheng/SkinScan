@@ -7,40 +7,58 @@
 </head>
 <body>
     <div id="chat-container">
-        <h1>Chatbox</h1>
+        <div id="chat-header">
+            <h1>Chatbox</h1>
+        </div>
         <div id="chatbox"></div>
-        <input type="text" id="message" placeholder="Type a message...">
-        <button id="send">Send</button>
-        <input type="file" id="imageUpload" accept="image/*">
+        <div id="input-area">
+            <input type="text" id="message" placeholder="Type a message...">
+            <button id="send">Send</button>
+            <label for="imageUpload" class="custom-file-upload">Upload Image</label>
+            <input type="file" id="imageUpload" accept="image/*">
+        </div>
     </div>
 
     <script>
-        document.getElementById('send').addEventListener('click', function() {
-            const message = document.getElementById('message').value;
-            const chatbox = document.getElementById('chatbox');
-            chatbox.innerHTML += `<div>You: ${message}</div><br>`;
-            document.getElementById('message').value = '';
-            const analyzingMessageId = `analyzing-${Date.now()}`;
-            const botAnalyzingMessage = `<div id="${analyzingMessageId}">Bot: Thinking...</div><br>`;
-            chatbox.innerHTML += botAnalyzingMessage;
-            chatbox.scrollTop = chatbox.scrollHeight;
+        const userAvatar = 'static/mask.png';
+        const botAvatar = 'static/doctor.png';
 
-            fetch('/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: `message=${message}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                const analyzingMessageElement = document.getElementById(analyzingMessageId);
-                if (analyzingMessageElement) {
-                    analyzingMessageElement.innerHTML = `Bot: ${data.message}<br>`;
-                }
+        document.getElementById('send').addEventListener('click', function() {
+            const message = document.getElementById('message').value.trim();
+            if (message !== '') {
+                const chatbox = document.getElementById('chatbox');
+                const userMessageDiv = document.createElement('div');
+                userMessageDiv.classList.add('message-container', 'user-message');
+                userMessageDiv.innerHTML = `<img src=${userAvatar} class="avatar"><div class="message">${message}</div>`;
+                chatbox.appendChild(userMessageDiv);
+                document.getElementById('message').value = '';
+
+                const analyzingMessageId = `analyzing-${Date.now()}`;
+                const botAnalyzingMessage = document.createElement('div');
+                botAnalyzingMessage.id = analyzingMessageId;
+                botAnalyzingMessage.classList.add('message-container', 'bot-message');
+                botAnalyzingMessage.innerHTML = `<img src=${botAvatar} class="avatar"><div class="message">Thinking...</div>`;
+                chatbox.appendChild(botAnalyzingMessage);
                 chatbox.scrollTop = chatbox.scrollHeight;
-            });
+
+                fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `message=${message}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const analyzingMessageElement = document.getElementById(analyzingMessageId);
+                    if (analyzingMessageElement) {
+                        analyzingMessageElement.innerHTML = `<img src=${botAvatar} class="avatar"><div class="message">${data.message}</div>`;
+                    }
+                    chatbox.scrollTop = chatbox.scrollHeight;
+                });
+            }
         });
+
 
         document.getElementById('imageUpload').addEventListener('change', function() {
             const file = this.files[0];
@@ -54,10 +72,17 @@
             .then(response => response.json())
             .then(data => {
                 const chatbox = document.getElementById('chatbox');
-                chatbox.innerHTML += `<div>You: <img src="${data.url}" alt="uploaded image" style="max-width: 90%;"></div><br>`;
+                const userImageDiv = document.createElement('div');
+                userImageDiv.classList.add('message-container', 'user-message');
+                userImageDiv.innerHTML = `<img src=${userAvatar} class="avatar"><div class="message"><img src="${data.url}" alt="uploaded image" style="max-width: 90%;"></div>`;
+                chatbox.appendChild(userImageDiv);
+
                 const analyzingMessageId = `analyzing-${Date.now()}`;
-                const botAnalyzingMessage = `<div id="${analyzingMessageId}">Bot: Analyzing image...</div><br>`;
-                chatbox.innerHTML += botAnalyzingMessage;
+                const botAnalyzingMessage = document.createElement('div');
+                botAnalyzingMessage.id = analyzingMessageId;
+                botAnalyzingMessage.classList.add('message-container', 'bot-message');
+                botAnalyzingMessage.innerHTML = `<img src=${botAvatar} class="avatar"><div class="message">Analyzing image...</div>`;
+                chatbox.appendChild(botAnalyzingMessage);
                 chatbox.scrollTop = chatbox.scrollHeight;
 
                 fetch('/img_analyze', {
@@ -71,7 +96,7 @@
                 .then(data => {
                     const analyzingMessageElement = document.getElementById(analyzingMessageId);
                     if (analyzingMessageElement) {
-                        analyzingMessageElement.innerHTML = `Bot: ${data.message}<br>`;
+                        analyzingMessageElement.innerHTML = `<img src=${botAvatar} class="avatar"><div class="message">${data.message}</div>`;
                     }
                     chatbox.scrollTop = chatbox.scrollHeight;
                 });

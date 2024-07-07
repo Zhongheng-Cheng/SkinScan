@@ -38,7 +38,7 @@ def upload_image():
 @app.route('/img_analyze', methods=['POST'])
 def img_analyze():
     response = generate_img_response(app.config["UPLOADED_FILE_PATH"])
-    response_text = "<br>" + str(response)
+    response_text = str(response)
     app.config['query_engine'] = generate_query_engine(response)
     return jsonify({'message': response_text})
 
