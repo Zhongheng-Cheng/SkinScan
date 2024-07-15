@@ -11,4 +11,5 @@ qdrant_client
 streamlit
 moviepy 
 opencv-python-headless
-genai
+# genai
+pydub
