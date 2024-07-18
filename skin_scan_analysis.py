@@ -17,6 +17,7 @@ import google.generativeai as genai
 load_dotenv()
 google_api_key = os.getenv("GOOGLE_API_KEY")
 
+
 # Define the SkinCondition model
 class SkinCondition(BaseModel):
     condition_name: str
@@ -137,7 +138,7 @@ def analyze_video(video_path, user_info):
             responses.append(response)
             unique_conditions.add(condition_name)
     return responses
-
+  
 # Streamlit app
 st.title("Skin Condition Analyzer")
 st.write("Upload an image, audio, or video file related to the skin condition, and the AI will analyze it to provide a possible diagnosis and treatment plan.")
