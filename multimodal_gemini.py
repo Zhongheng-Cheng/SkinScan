@@ -1,4 +1,5 @@
 import google.generativeai as genai
+import time
 import json
 import os
 from dotenv import load_dotenv
@@ -32,8 +33,8 @@ Using this JSON schema:
     }
 Return a `SkinCondition`"""
 
-prompt_image = f"""\
-You are an expert dermatologist specializing in skin conditions. Analyze the image provided and come up with a possible diagnosis and a treatment plan. 
+prompt_diagnose = f"""\
+You are an expert dermatologist specializing in skin conditions. Analyze the file provided and come up with a possible diagnosis and a treatment plan. 
 {prompt_user_info}
 Provide the analysis in detailed paragraphs and include bullet points where necessary.
 {prompt_json_output}
@@ -44,15 +45,27 @@ You are a conversational bot collecting demographic information from a patient. 
 {prompt_user_info}
 """
 
-def summarize_audio(prompt, audio_file_path) -> dict:
+def process_file(prompt, file_path) -> dict:
+    
+    # upload file
     model = genai.GenerativeModel("models/gemini-1.5-pro-latest", generation_config={"response_mime_type": "application/json"})
-    audio_file = genai.upload_file(path=audio_file_path)
+    file = genai.upload_file(path=file_path)
+
+    # verify the API has successfully received the files
+    while file.state.name == "PROCESSING":
+        time.sleep(1)
+        file = genai.get_file(file.name)
+
+    if file.state.name == "FAILED":
+        raise ValueError(file.state.name)
+    
+    # generate response
     prompt = prompt
-    response = model.generate_content([prompt, audio_file])
+    response = model.generate_content([prompt, file], request_options={"timeout": 60})
     return json.loads(response.text)
 
 if __name__ == "__main__":
-    result = summarize_audio(prompt_image, "./static/example_uploads/img3.jpeg")
+    result = process_file(prompt_diagnose, "./static/example_uploads/skin_lesion.mp4")
     for key, value in result.items():
         print(f"{key}: {value}")
 
