@@ -1,4 +1,4 @@
-example_images/
+example_uploads/
 tmp_*/
 *.ipynb
 qdrant_storage/

@@ -11,8 +11,5 @@ qdrant_client
 streamlit
 moviepy 
 opencv-python-headless
-genai
-#tavily-python
-#langgraph
-#react_agent
-#langchain_community.tools.tavily_search
+# genai
+pydub
