@@ -65,8 +65,18 @@ def process_file(prompt, file_path) -> dict:
     return json.loads(response.text)
 
 if __name__ == "__main__":
+    print("\n\nVideo:")
     result = process_file(prompt_diagnose, "./static/example_uploads/skin_lesion.mp4")
     for key, value in result.items():
         print(f"{key}: {value}")
+    
+    print("\n\nImage:")
+    result = process_file(prompt_diagnose, "./static/example_uploads/Anetoderm01.jpg")
+    for key, value in result.items():
+        print(f"{key}: {value}")
 
+    print("\n\nAudio:")
+    result = process_file(prompt_audio, "./static/example_uploads/Skin_Problem.m4a")
+    for key, value in result.items():
+        print(f"{key}: {value}")
     
