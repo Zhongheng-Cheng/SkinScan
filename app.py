@@ -1,10 +1,10 @@
 from flask import Flask, render_template, request, jsonify
 import os, shutil
 from llm import generate_img_response, generate_query_engine, generate_text_response
+from multimodal_gemini import process_file, prompt_diagnose
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/tmp_uploads'
-app.config['query_engine'] = None
 
 @app.route('/')
 def home():
@@ -37,9 +37,8 @@ def upload_image():
 
 @app.route('/img_analyze', methods=['POST'])
 def img_analyze():
-    response = generate_img_response(app.config["UPLOADED_FILE_PATH"])
-    response_text = str(response)
-    app.config['query_engine'] = generate_query_engine(response)
+    response = process_file(prompt_diagnose, app.config["UPLOADED_FILE_PATH"])
+    response_text = "<br><br>".join([f"<b>- {key}</b>: {value}" for key, value in response.items()])
     return jsonify({'message': response_text})
 
 if __name__ == '__main__':
