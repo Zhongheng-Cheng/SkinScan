@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 import os, shutil
 # from llm import generate_img_response, generate_query_engine, generate_text_response
 from multimodal_gemini import process_file, prompt_diagnose, generate_response
+from markdown import markdown
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/tmp_uploads'
@@ -17,7 +18,7 @@ def home():
 def chat():
     user_message = request.form['message']
     response = generate_response(user_message)
-    return jsonify({'message': response})
+    return jsonify({'message': markdown(response)})
 
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
@@ -35,8 +36,8 @@ def upload_image():
 @app.route('/img_analyze', methods=['POST'])
 def img_analyze():
     response = process_file(prompt_diagnose, app.config["UPLOADED_FILE_PATH"])
-    response_text = "<br><br>".join([f"<b>- {key}</b>: {value}" for key, value in response.items()])
-    return jsonify({'message': response_text})
+    diagnose = "# Diagnose:\n\n" + "\n\n".join([f"## {key}\n\n{value}" for key, value in response.items()])
+    return jsonify({'message': markdown(diagnose)})
 
 if __name__ == '__main__':
     app.run(debug=True)
