@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, jsonify
 import os, shutil
-# from llm import generate_img_response, generate_query_engine, generate_text_response
 from multimodal_gemini import process_file, prompt_diagnose, generate_response
 from markdown import markdown
 
@@ -29,13 +28,13 @@ def upload_media():
         return jsonify({'error': 'No selected file'}), 400
     if file:
         filename = file.filename
-        app.config["UPLOADED_FILE_PATH"] = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(app.config["UPLOADED_FILE_PATH"])
-        return jsonify({'url': app.config["UPLOADED_FILE_PATH"]})
+        file_address = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_address)
+        return jsonify({'url': file_address})
 
 @app.route('/media_analyze', methods=['POST'])
 def media_analyze():
-    response = process_file(prompt_diagnose, app.config["UPLOADED_FILE_PATH"])
+    response = process_file(prompt_diagnose, request.form['message'])
     diagnose = "# Diagnose\n\n" + "\n\n".join([f"## {key.replace('_', ' ')}\n\n{value}" for key, value in response.items()])
     return jsonify({'message': markdown(diagnose)})
 

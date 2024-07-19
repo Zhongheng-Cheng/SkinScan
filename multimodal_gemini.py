@@ -9,9 +9,9 @@ genai.configure(api_key=google_api_key)
 from google.api_core import retry
 
 gemini_retry = retry.Retry(
-    initial=1.0,
+    initial=2.0,
     maximum=10.0,
-    multiplier=2.0,
+    multiplier=1.0,
     deadline=60.0
 )
 
@@ -62,14 +62,13 @@ You are a conversational bot collecting demographic information from a patient. 
 @gemini_retry
 def generate_response(prompt) -> str:
     response = chat.send_message(prompt)
-    print(chat.history)
+    # print(chat.history)
     return response.text
 
 @gemini_retry
 def process_file(prompt, file_path) -> dict:
     
     # upload file
-    
     file = genai.upload_file(path=file_path)
 
     # verify the API has successfully received the files
