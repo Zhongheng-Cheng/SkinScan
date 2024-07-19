@@ -16,9 +16,8 @@ gemini_retry = retry.Retry(
 )
 
 diagnose_model = genai.GenerativeModel("models/gemini-1.5-pro-latest", generation_config={"response_mime_type": "application/json"})
-chat_model = genai.GenerativeModel("models/gemini-1.5-pro-latest",
-                              system_instruction="You are an expert dermatologist specializing in skin conditions.")
-messages = []
+chat_model = genai.GenerativeModel("models/gemini-1.5-pro-latest", system_instruction="You are an expert dermatologist specializing in skin conditions.")
+messages = [] # Chat history
 
 user_info = {
     "age": 30,
@@ -81,7 +80,7 @@ def process_file(prompt, file_path) -> dict:
     
     # generate response
     prompt = prompt
-    messages.append({'role': 'user', 'parts': [prompt, file]})
+    messages.append({'role': 'user', 'parts': [file, prompt]})
     response = diagnose_model.generate_content(messages, request_options={"timeout": 60})
     messages.append(response.candidates[0].content)
     return json.loads(response.text)
