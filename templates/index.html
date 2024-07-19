@@ -18,9 +18,9 @@
         <div id="chatbox"></div>
         <div id="input-area">
             <input type="text" id="message" placeholder="Type a message...">
-            <button id="send">Send</button>
-            <label for="imageUpload" class="custom-file-upload">Upload Image</label>
-            <input type="file" id="imageUpload" accept="image/*">
+            <button type="submit" id="send">Send</button>
+            <label for="mediaUpload" class="custom-file-upload">Upload Media</label>
+            <input type="file" id="mediaUpload" accept="image/*, video/*" style="display: none;">
         </div>
     </div>
 
@@ -65,22 +65,31 @@
         });
 
 
-        document.getElementById('imageUpload').addEventListener('change', function() {
+        document.getElementById('mediaUpload').addEventListener('change', function() {
             const file = this.files[0];
             const formData = new FormData();
-            formData.append('image', file);
+            formData.append('media', file);
 
-            fetch('/upload_image', {
+            fetch('/upload_media', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
                 const chatbox = document.getElementById('chatbox');
-                const userImageDiv = document.createElement('div');
-                userImageDiv.classList.add('message-container', 'user-message');
-                userImageDiv.innerHTML = `<img src=${userAvatar} class="avatar"><div class="message"><img src="${data.url}" alt="uploaded image" style="max-width: 90%;"></div>`;
-                chatbox.appendChild(userImageDiv);
+                const userFileDiv = document.createElement('div');
+                userFileDiv.classList.add('message-container', 'user-message');
+
+                let fileContent;
+                if (file.type.startsWith('image/')) {
+                    fileContent = `<img src="${data.url}" alt="uploaded image">`;
+                } else if (file.type.startsWith('video/')) {
+                    fileContent = `<video controls><source src="${data.url}" type="${file.type}"></video>`;
+                } else {
+                    fileContent = `Unsupported file type: ${file.type}`;
+                }
+                userFileDiv.innerHTML = `<img src=${userAvatar} class="avatar"><div class="message">${fileContent}</div>`;
+                chatbox.appendChild(userFileDiv);
 
                 const analyzingMessageId = `analyzing-${Date.now()}`;
                 const botAnalyzingMessage = document.createElement('div');
@@ -90,9 +99,9 @@
                 chatbox.appendChild(botAnalyzingMessage);
                 chatbox.scrollTop = chatbox.scrollHeight;
 
-                fetch('/img_analyze', {
+                fetch('/media_analyze', {
                     method: 'POST',
-                    body: JSON.stringify({ imageUrl: data.url }),
+                    body: JSON.stringify({ mediaUrl: data.url }),
                     headers: {
                         'Content-Type': 'application/json'
                     }

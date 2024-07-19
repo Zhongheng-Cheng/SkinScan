@@ -20,11 +20,11 @@ def chat():
     response = generate_response(user_message)
     return jsonify({'message': markdown(response)})
 
-@app.route('/upload_image', methods=['POST'])
-def upload_image():
-    if 'image' not in request.files:
-        return jsonify({'error': 'No image part'}), 400
-    file = request.files['image']
+@app.route('/upload_media', methods=['POST'])
+def upload_media():
+    if 'media' not in request.files:
+        return jsonify({'error': 'No media part'}), 400
+    file = request.files['media']
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
     if file:
@@ -33,10 +33,10 @@ def upload_image():
         file.save(app.config["UPLOADED_FILE_PATH"])
         return jsonify({'url': app.config["UPLOADED_FILE_PATH"]})
 
-@app.route('/img_analyze', methods=['POST'])
-def img_analyze():
+@app.route('/media_analyze', methods=['POST'])
+def media_analyze():
     response = process_file(prompt_diagnose, app.config["UPLOADED_FILE_PATH"])
-    diagnose = "# Diagnose:\n\n" + "\n\n".join([f"## {key}\n\n{value}" for key, value in response.items()])
+    diagnose = "# Diagnose\n\n" + "\n\n".join([f"## {key.replace('_', ' ')}\n\n{value}" for key, value in response.items()])
     return jsonify({'message': markdown(diagnose)})
 
 if __name__ == '__main__':
