@@ -16,10 +16,9 @@ gemini_retry = retry.Retry(
 )
 
 diagnose_model = genai.GenerativeModel("models/gemini-1.5-pro-latest", generation_config={"response_mime_type": "application/json"})
-model = genai.GenerativeModel("models/gemini-1.5-pro-latest",
+chat_model = genai.GenerativeModel("models/gemini-1.5-pro-latest",
                               system_instruction="You are an expert dermatologist specializing in skin conditions.")
-chat = model.start_chat()
-
+messages = []
 
 user_info = {
     "age": 30,
@@ -61,8 +60,9 @@ You are a conversational bot collecting demographic information from a patient. 
 
 @gemini_retry
 def generate_response(prompt) -> str:
-    response = chat.send_message(prompt)
-    # print(chat.history)
+    messages.append({'role': 'user', 'parts': [prompt]})
+    response = chat_model.generate_content(messages)
+    messages.append(response.candidates[0].content)
     return response.text
 
 @gemini_retry
@@ -81,25 +81,30 @@ def process_file(prompt, file_path) -> dict:
     
     # generate response
     prompt = prompt
-    response = diagnose_model.generate_content([prompt, file], request_options={"timeout": 60})
+    messages.append({'role': 'user', 'parts': [prompt, file]})
+    response = diagnose_model.generate_content(messages, request_options={"timeout": 60})
+    messages.append(response.candidates[0].content)
     return json.loads(response.text)
 
 if __name__ == "__main__":
-    # print("\n\nVideo:")
-    # result = process_file(prompt_diagnose, "./static/example_uploads/skin_lesion.mp4")
-    # for key, value in result.items():
-    #     print(f"{key}: {value}")
+    print("\n\nVideo:")
+    result = process_file(prompt_diagnose, "./static/example_uploads/skin_lesion.mp4")
+    for key, value in result.items():
+        print(f"{key}: {value}")
     
-    # print("\n\nImage:")
-    # result = process_file(prompt_diagnose, "./static/example_uploads/Anetoderm01.jpg")
-    # for key, value in result.items():
-    #     print(f"{key}: {value}")
+    print("\n\nImage:")
+    result = process_file(prompt_diagnose, "./static/example_uploads/Anetoderm01.jpg")
+    for key, value in result.items():
+        print(f"{key}: {value}")
 
-    # print("\n\nAudio:")
-    # result = process_file(prompt_audio, "./static/example_uploads/Skin_Problem.m4a")
-    # for key, value in result.items():
-    #     print(f"{key}: {value}")
+    print("\n\nAudio:")
+    result = process_file(prompt_audio, "./static/example_uploads/Skin_Problem.m4a")
+    for key, value in result.items():
+        print(f"{key}: {value}")
     prompt = "What are the main benefits of using artificial intelligence in healthcare?"
     response = generate_response(prompt)
-    print(response)
+    prompt = "What are the main drawbacks of using artificial intelligence in healthcare?"
+    response = generate_response(prompt)
+    print("\n\nChat History:")
+    print(messages)
     
