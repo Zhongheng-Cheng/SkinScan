@@ -83,7 +83,7 @@ def process_file(file_path) -> dict:
 
 @gemini_retry
 def get_transcript(mime_type: str, audio_data: bytes) -> str:
-    prompt = "Generate a transcript of the speech."
+    prompt = "Generate a transcript of the speech. If no speech transcript is available, return empty string."
     response = transcript_model.generate_content([
         prompt,
         {

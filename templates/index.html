@@ -17,11 +17,15 @@
         </div>
         <div id="chatbox"></div>
         <div id="input-area">
-            <input type="text" id="message" placeholder="Type a message...">
+            <div class="input-container">
+                <button id="recordButton">
+                    <img src="static/microphone_off.png" alt="Microphone" id="micIcon">
+                </button>
+                <input type="text" id="message" placeholder="Type a message...">
+            </div>
             <button type="submit" id="send">Send</button>
             <label for="mediaUpload" class="custom-file-upload">Upload Media</label>
             <input type="file" id="mediaUpload" accept="image/*, video/*" style="display: none;">
-            <button id="recordButton">Start Recording</button>
         </div>
     </div>
 
@@ -29,6 +33,8 @@
         const userAvatar = 'static/mask.png';
         const botAvatar = 'static/doctor.png';
         const scanAvatar = 'static/scan.png';
+        const microphone_off = 'static/microphone_off.png';
+        const microphone_on = 'static/microphone_on.png';
 
         function sendTmpMessage(avatar, message) {
             const analyzingMessageId = `analyzing-${Date.now()}`;
@@ -117,10 +123,10 @@
         recordButton.addEventListener('click', () => {
             if (mediaRecorder && mediaRecorder.state === "recording") {
                 mediaRecorder.stop();
-                recordButton.textContent = "Start Recording";
+                document.getElementById('micIcon').src = 'static/microphone_off.png';
             } else {
                 startRecording();
-                recordButton.textContent = "Stop Recording";
+                document.getElementById('micIcon').src = 'static/microphone_on.png';
             }
         });
 
@@ -132,7 +138,6 @@
             };
             mediaRecorder.onstop = () => {
                 const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                console.log(audioBlob);
                 audioChunks = [];
                 sendData(audioBlob);
             };
