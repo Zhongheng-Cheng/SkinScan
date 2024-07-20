@@ -21,6 +21,7 @@
             <button type="submit" id="send">Send</button>
             <label for="mediaUpload" class="custom-file-upload">Upload Media</label>
             <input type="file" id="mediaUpload" accept="image/*, video/*" style="display: none;">
+            <button id="recordButton">Start Recording</button>
         </div>
     </div>
 
@@ -108,6 +109,52 @@
                 generateResponse("/media_analyze", data.url);
             });
         });
+
+        let mediaRecorder;
+        let audioChunks = [];
+        const recordButton = document.getElementById('recordButton');
+
+        recordButton.addEventListener('click', () => {
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                mediaRecorder.stop();
+                recordButton.textContent = "Start Recording";
+            } else {
+                startRecording();
+                recordButton.textContent = "Stop Recording";
+            }
+        });
+
+        async function startRecording() {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                console.log(audioBlob);
+                audioChunks = [];
+                sendData(audioBlob);
+            };
+            mediaRecorder.start();
+        }
+
+        function sendData(audioBlob) {
+            const formData = new FormData();
+            formData.append('audio', audioBlob);
+
+            fetch('/transcript', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                messageInput = document.getElementById("message");
+                const currentText = messageInput.value;
+                messageInput.value = currentText ? currentText + " " + data.transcript : data.transcript;
+            })
+            .catch(error => console.error('Error:', error));
+        }
     </script>
 </body>
 </html>

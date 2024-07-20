@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 import os, shutil
-from multimodal_gemini import process_file, prompt_diagnose, generate_response
+from multimodal_gemini import process_file, generate_response, get_transcript
 from markdown import markdown
 
 app = Flask(__name__)
@@ -17,7 +17,16 @@ def home():
 def chat():
     user_message = request.form['message']
     response = generate_response(user_message)
-    return jsonify({'message': markdown(response)})
+    return jsonify({'message': markdown(response)}), 200
+
+@app.route('/transcript', methods=['POST'])
+def transcript():
+    if 'audio' not in request.files:
+        return "No audio file in request", 400
+    
+    audio_file = request.files['audio']
+    transcript = get_transcript(audio_file.content_type, audio_file.read())
+    return jsonify({'transcript': transcript}), 200
 
 @app.route('/upload_media', methods=['POST'])
 def upload_media():
@@ -30,11 +39,11 @@ def upload_media():
         filename = file.filename
         file_address = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_address)
-        return jsonify({'url': file_address})
+        return jsonify({'url': file_address}), 200
 
 @app.route('/media_analyze', methods=['POST'])
 def media_analyze():
-    response = process_file(prompt_diagnose, request.form['message'])
+    response = process_file(request.form['message'])
     diagnose = "# Diagnose\n\n" + "\n\n".join([f"## {key.replace('_', ' ')}\n\n{value}" for key, value in response.items()])
     return jsonify({'message': markdown(diagnose)})
 

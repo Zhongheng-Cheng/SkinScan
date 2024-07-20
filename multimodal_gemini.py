@@ -17,6 +17,7 @@ gemini_retry = retry.Retry(
 
 diagnose_model = genai.GenerativeModel("models/gemini-1.5-pro-latest", generation_config={"response_mime_type": "application/json"})
 chat_model = genai.GenerativeModel("models/gemini-1.5-pro-latest", system_instruction="You are an expert dermatologist specializing in skin conditions.")
+transcript_model = genai.GenerativeModel(model_name="gemini-1.5-flash")
 messages = [] # Chat history
 
 user_info = {
@@ -52,11 +53,6 @@ Provide the analysis in detailed paragraphs and include bullet points where nece
 {prompt_json_output}
 """
 
-prompt_audio = f"""\
-You are a conversational bot collecting demographic information from a patient. Summarize the content, and recommend the appropriate treatment. Additionally, note if the patient should call a dermatologist. 
-{prompt_user_info}
-"""
-
 @gemini_retry
 def generate_response(prompt) -> str:
     messages.append({'role': 'user', 'parts': [prompt]})
@@ -65,7 +61,7 @@ def generate_response(prompt) -> str:
     return response.text
 
 @gemini_retry
-def process_file(prompt, file_path) -> dict:
+def process_file(file_path) -> dict:
     
     # upload file
     file = genai.upload_file(path=file_path)
@@ -79,11 +75,23 @@ def process_file(prompt, file_path) -> dict:
         raise ValueError(file.state.name)
     
     # generate response
-    prompt = prompt
+    prompt = prompt_diagnose
     messages.append({'role': 'user', 'parts': [file, prompt]})
     response = diagnose_model.generate_content(messages, request_options={"timeout": 60})
     messages.append(response.candidates[0].content)
     return json.loads(response.text)
+
+@gemini_retry
+def get_transcript(mime_type: str, audio_data: bytes) -> str:
+    prompt = "Generate a transcript of the speech."
+    response = transcript_model.generate_content([
+        prompt,
+        {
+            "mime_type": mime_type,
+            "data": audio_data
+        }
+    ])
+    return response.text.strip()
 
 if __name__ == "__main__":
     print("\n\nVideo:")
@@ -97,13 +105,13 @@ if __name__ == "__main__":
         print(f"{key}: {value}")
 
     print("\n\nAudio:")
-    result = process_file(prompt_audio, "./static/example_uploads/Skin_Problem.m4a")
-    for key, value in result.items():
-        print(f"{key}: {value}")
-    prompt = "What are the main benefits of using artificial intelligence in healthcare?"
-    response = generate_response(prompt)
-    prompt = "What are the main drawbacks of using artificial intelligence in healthcare?"
-    response = generate_response(prompt)
-    print("\n\nChat History:")
-    print(messages)
+    result = get_transcript("./static/example_uploads/Skin_Problem.m4a")
+    print(result)
+
+    # prompt = "What are the main benefits of using artificial intelligence in healthcare?"
+    # response = generate_response(prompt)
+    # prompt = "What are the main drawbacks of using artificial intelligence in healthcare?"
+    # response = generate_response(prompt)
+    # print("\n\nChat History:")
+    # print(messages)
     
