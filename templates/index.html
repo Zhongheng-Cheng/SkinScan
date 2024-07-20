@@ -4,11 +4,6 @@
     <meta charset="UTF-8">
     <title>Chatbox</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <style>
-        p {
-            margin: 0;
-        }
-    </style>
 </head>
 <body>
     <div id="chat-container">
@@ -16,17 +11,17 @@
             <h1>Chatbox</h1>
         </div>
         <div id="chatbox"></div>
-        <div id="input-area">
-            <div class="input-container">
-                <button id="recordButton">
+        <form id="input-area">
+            <div id="input-container">
+                <button id="recordButton" type="button">
                     <img src="static/microphone_off.png" alt="Microphone" id="micIcon">
                 </button>
                 <input type="text" id="message" placeholder="Type a message...">
             </div>
             <button type="submit" id="send">Send</button>
-            <label for="mediaUpload" class="custom-file-upload">Upload Media</label>
+            <label for="mediaUpload" id="file-upload">Upload Media</label>
             <input type="file" id="mediaUpload" accept="image/*, video/*" style="display: none;">
-        </div>
+        </form>
     </div>
 
     <script>
@@ -83,11 +78,13 @@
             chatbox.appendChild(userMessageDiv);
         }
 
-        document.getElementById('send').addEventListener('click', function() {
-            const message = document.getElementById('message').value.trim();
+        document.getElementById('input-area').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const messageInput = document.getElementById('message');
+            const message = messageInput.value.trim();
+            messageInput.value = '';
             if (message !== '') {
                 sendUserMessage(message);
-                document.getElementById('message').value = '';
                 generateResponse("/chat", message);
             }
         });
