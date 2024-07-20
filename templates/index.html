@@ -11,97 +11,152 @@
             <h1>Chatbox</h1>
         </div>
         <div id="chatbox"></div>
-        <div id="input-area">
-            <input type="text" id="message" placeholder="Type a message...">
-            <button id="send">Send</button>
-            <label for="imageUpload" class="custom-file-upload">Upload Image</label>
-            <input type="file" id="imageUpload" accept="image/*">
-        </div>
+        <form id="input-area">
+            <div id="input-container">
+                <button id="recordButton" type="button">
+                    <img src="static/microphone_off.png" alt="Microphone" id="micIcon">
+                </button>
+                <input type="text" id="message" placeholder="Type a message...">
+            </div>
+            <button type="submit" id="send">Send</button>
+            <label for="mediaUpload" id="file-upload">Upload Media</label>
+            <input type="file" id="mediaUpload" accept="image/*, video/*" style="display: none;">
+        </form>
     </div>
 
     <script>
         const userAvatar = 'static/mask.png';
         const botAvatar = 'static/doctor.png';
+        const scanAvatar = 'static/scan.png';
+        const microphone_off = 'static/microphone_off.png';
+        const microphone_on = 'static/microphone_on.png';
 
-        document.getElementById('send').addEventListener('click', function() {
-            const message = document.getElementById('message').value.trim();
-            if (message !== '') {
-                const chatbox = document.getElementById('chatbox');
-                const userMessageDiv = document.createElement('div');
-                userMessageDiv.classList.add('message-container', 'user-message');
-                userMessageDiv.innerHTML = `<img src=${userAvatar} class="avatar"><div class="message">${message}</div>`;
-                chatbox.appendChild(userMessageDiv);
-                document.getElementById('message').value = '';
+        function sendTmpMessage(avatar, message) {
+            const analyzingMessageId = `analyzing-${Date.now()}`;
+            const botAnalyzingMessage = document.createElement('div');
+            botAnalyzingMessage.id = analyzingMessageId;
+            botAnalyzingMessage.classList.add('message-container', 'bot-message');
+            botAnalyzingMessage.innerHTML = `<img src=${avatar} class="avatar"><div class="message">${message}</div>`;
+            chatbox.appendChild(botAnalyzingMessage);
+            chatbox.scrollTop = chatbox.scrollHeight;
+            return analyzingMessageId
+        }
 
-                const analyzingMessageId = `analyzing-${Date.now()}`;
-                const botAnalyzingMessage = document.createElement('div');
-                botAnalyzingMessage.id = analyzingMessageId;
-                botAnalyzingMessage.classList.add('message-container', 'bot-message');
-                botAnalyzingMessage.innerHTML = `<img src=${botAvatar} class="avatar"><div class="message">Thinking...</div>`;
-                chatbox.appendChild(botAnalyzingMessage);
+        function generateResponse(apiCall, message) {
+            let avatar;
+            let tmpMessage;
+            if (apiCall == "/chat") {
+                avatar = botAvatar;
+                tmpMessage = "Thinking...";
+            } else if (apiCall == "/media_analyze") {
+                avatar = scanAvatar;
+                tmpMessage = "Analyzing file...";
+            }
+            const tmpMessageId = sendTmpMessage(avatar, tmpMessage);
+            fetch(apiCall, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `message=${message}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                const tmpMessageElement = document.getElementById(tmpMessageId);
+                if (tmpMessageElement) {
+                    tmpMessageElement.innerHTML = `<img src=${avatar} class="avatar"><div class="message">${data.message}</div>`;
+                }
                 chatbox.scrollTop = chatbox.scrollHeight;
+            });
+        }
 
-                fetch('/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: `message=${message}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const analyzingMessageElement = document.getElementById(analyzingMessageId);
-                    if (analyzingMessageElement) {
-                        analyzingMessageElement.innerHTML = `<img src=${botAvatar} class="avatar"><div class="message">${data.message}</div>`;
-                    }
-                    chatbox.scrollTop = chatbox.scrollHeight;
-                });
+        function sendUserMessage(content) {
+            const chatbox = document.getElementById('chatbox');
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.classList.add('message-container', 'user-message');
+            userMessageDiv.innerHTML = `<img src=${userAvatar} class="avatar"><div class="message">${content}</div>`;
+            chatbox.appendChild(userMessageDiv);
+        }
+
+        document.getElementById('input-area').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const messageInput = document.getElementById('message');
+            const message = messageInput.value.trim();
+            messageInput.value = '';
+            if (message !== '') {
+                sendUserMessage(message);
+                generateResponse("/chat", message);
             }
         });
 
-
-        document.getElementById('imageUpload').addEventListener('change', function() {
+        document.getElementById('mediaUpload').addEventListener('change', function() {
             const file = this.files[0];
             const formData = new FormData();
-            formData.append('image', file);
+            formData.append('media', file);
 
-            fetch('/upload_image', {
+            fetch('/upload_media', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
-                const chatbox = document.getElementById('chatbox');
-                const userImageDiv = document.createElement('div');
-                userImageDiv.classList.add('message-container', 'user-message');
-                userImageDiv.innerHTML = `<img src=${userAvatar} class="avatar"><div class="message"><img src="${data.url}" alt="uploaded image" style="max-width: 90%;"></div>`;
-                chatbox.appendChild(userImageDiv);
-
-                const analyzingMessageId = `analyzing-${Date.now()}`;
-                const botAnalyzingMessage = document.createElement('div');
-                botAnalyzingMessage.id = analyzingMessageId;
-                botAnalyzingMessage.classList.add('message-container', 'bot-message');
-                botAnalyzingMessage.innerHTML = `<img src=${botAvatar} class="avatar"><div class="message">Analyzing image...</div>`;
-                chatbox.appendChild(botAnalyzingMessage);
-                chatbox.scrollTop = chatbox.scrollHeight;
-
-                fetch('/img_analyze', {
-                    method: 'POST',
-                    body: JSON.stringify({ imageUrl: data.url }),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const analyzingMessageElement = document.getElementById(analyzingMessageId);
-                    if (analyzingMessageElement) {
-                        analyzingMessageElement.innerHTML = `<img src=${botAvatar} class="avatar"><div class="message">${data.message}</div>`;
-                    }
-                    chatbox.scrollTop = chatbox.scrollHeight;
-                });
+                let fileContent;
+                if (file.type.startsWith('image/')) {
+                    fileContent = `<img src="${data.url}" alt="uploaded image">`;
+                } else if (file.type.startsWith('video/')) {
+                    fileContent = `<video controls><source src="${data.url}" type="${file.type}"></video>`;
+                } else {
+                    fileContent = `Unsupported file type: ${file.type}`;
+                }
+                sendUserMessage(fileContent);
+                generateResponse("/media_analyze", data.url);
             });
         });
+
+        let mediaRecorder;
+        let audioChunks = [];
+        const recordButton = document.getElementById('recordButton');
+
+        recordButton.addEventListener('click', () => {
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                mediaRecorder.stop();
+                document.getElementById('micIcon').src = 'static/microphone_off.png';
+            } else {
+                startRecording();
+                document.getElementById('micIcon').src = 'static/microphone_on.png';
+            }
+        });
+
+        async function startRecording() {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                audioChunks = [];
+                sendData(audioBlob);
+            };
+            mediaRecorder.start();
+        }
+
+        function sendData(audioBlob) {
+            const formData = new FormData();
+            formData.append('audio', audioBlob);
+
+            fetch('/transcript', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                messageInput = document.getElementById("message");
+                const currentText = messageInput.value;
+                messageInput.value = currentText ? currentText + " " + data.transcript : data.transcript;
+            })
+            .catch(error => console.error('Error:', error));
+        }
     </script>
 </body>
 </html>

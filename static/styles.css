@@ -8,6 +8,10 @@ body {
     margin: 0;
 }
 
+p {
+    margin: 0;
+}
+
 #chat-container {
     width: 90%;
     max-width: 800px;
@@ -79,15 +83,41 @@ body {
     align-items: center;
 }
 
-#message {
+#input-container {
     flex: 1;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    border: 1px solid #dcdcdc;
+    padding: 5px;
+    border-radius: 4px;
+    background-color: #f8f8f8;
+}
+#input-container input {
+    border: none;
+    outline: none;
+    padding: 5px;
+    flex-grow: 1;
+    background-color: #f8f8f8;
+}
+#input-container button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 5px;
+}
+#input-container button img {
+    width: 20px;
+    height: 20px;
+}
+#input-container button:focus {
+    outline: none;
 }
 
-#send, .custom-file-upload {
+#send, #file-upload {
     background: #007bff;
     color: white;
     border: none;

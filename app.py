@@ -1,10 +1,10 @@
 from flask import Flask, render_template, request, jsonify
 import os, shutil
-from llm import generate_img_response, generate_query_engine, generate_text_response
+from multimodal_gemini import process_file, generate_response, get_transcript
+from markdown import markdown
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/tmp_uploads'
-app.config['query_engine'] = None
 
 @app.route('/')
 def home():
@@ -16,31 +16,36 @@ def home():
 @app.route('/chat', methods=['POST'])
 def chat():
     user_message = request.form['message']
-    if app.config['query_engine']:
-        response = generate_text_response(app.config['query_engine'], user_message)
-    else:
-        response = "Please upload a image to start"
-    return jsonify({'message': response})
+    response = generate_response(user_message)
+    return jsonify({'message': markdown(response)}), 200
 
-@app.route('/upload_image', methods=['POST'])
-def upload_image():
-    if 'image' not in request.files:
-        return jsonify({'error': 'No image part'}), 400
-    file = request.files['image']
+@app.route('/transcript', methods=['POST'])
+def transcript():
+    if 'audio' not in request.files:
+        return "No audio file in request", 400
+    
+    audio_file = request.files['audio']
+    transcript = get_transcript(audio_file.content_type, audio_file.read())
+    return jsonify({'transcript': transcript}), 200
+
+@app.route('/upload_media', methods=['POST'])
+def upload_media():
+    if 'media' not in request.files:
+        return jsonify({'error': 'No media part'}), 400
+    file = request.files['media']
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
     if file:
         filename = file.filename
-        app.config["UPLOADED_FILE_PATH"] = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(app.config["UPLOADED_FILE_PATH"])
-        return jsonify({'url': app.config["UPLOADED_FILE_PATH"]})
+        file_address = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_address)
+        return jsonify({'url': file_address}), 200
 
-@app.route('/img_analyze', methods=['POST'])
-def img_analyze():
-    response = generate_img_response(app.config["UPLOADED_FILE_PATH"])
-    response_text = str(response)
-    app.config['query_engine'] = generate_query_engine(response)
-    return jsonify({'message': response_text})
+@app.route('/media_analyze', methods=['POST'])
+def media_analyze():
+    response = process_file(request.form['message'])
+    diagnose = "# Diagnose\n\n" + "\n\n".join([f"## {key.replace('_', ' ')}\n\n{value}" for key, value in response.items()])
+    return jsonify({'message': markdown(diagnose)})
 
 if __name__ == '__main__':
     app.run(debug=True)
