@@ -93,25 +93,4 @@ def get_transcript(mime_type: str, audio_data: bytes) -> str:
     ])
     return response.text.strip()
 
-if __name__ == "__main__":
-    print("\n\nVideo:")
-    result = process_file(prompt_diagnose, "./static/example_uploads/skin_lesion.mp4")
-    for key, value in result.items():
-        print(f"{key}: {value}")
-    
-    print("\n\nImage:")
-    result = process_file(prompt_diagnose, "./static/example_uploads/Anetoderm01.jpg")
-    for key, value in result.items():
-        print(f"{key}: {value}")
-
-    print("\n\nAudio:")
-    result = get_transcript("./static/example_uploads/Skin_Problem.m4a")
-    print(result)
-
-    # prompt = "What are the main benefits of using artificial intelligence in healthcare?"
-    # response = generate_response(prompt)
-    # prompt = "What are the main drawbacks of using artificial intelligence in healthcare?"
-    # response = generate_response(prompt)
-    # print("\n\nChat History:")
-    # print(messages)
     
