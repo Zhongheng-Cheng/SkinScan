@@ -33,6 +33,7 @@
 
         const questionnaire = ' \
         <form id="questionnaire"> \
+            <p>Please provide the following information so that we can better analyze your skin condition.</p>\
             <div> \
                 <label for="age">Age:</label> \
                 <input type="text" id="age" name="age"> \
@@ -49,6 +50,7 @@
                 <label for="race">Race:</label> \
                 <input type="text" id="race" name="race"> \
             </div> \
+            <p><i>*Your information will <b>NOT</b> be shared with anyone, and <b>ONLY</b> be available for this session.</i></p>\
             <button type="submit" id="submit">Submit</button> \
         </form>'
         questionnaire_id = sendTmpMessage(botAvatar, questionnaire);
