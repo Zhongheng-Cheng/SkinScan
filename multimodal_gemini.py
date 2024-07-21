@@ -15,26 +15,16 @@ gemini_retry = retry.Retry(
     deadline=60.0
 )
 
-diagnose_model = genai.GenerativeModel("models/gemini-1.5-pro-latest", generation_config={"response_mime_type": "application/json"})
-chat_model = genai.GenerativeModel("models/gemini-1.5-pro-latest", system_instruction="You are an expert dermatologist specializing in skin conditions.")
-transcript_model = genai.GenerativeModel(model_name="gemini-1.5-flash")
-messages = [] # Chat history
-
-user_info = {
-    "age": 30,
-    "gender": "Female",
-    "location": "California",
-    "race": "Asian"
-}
-    
-prompt_user_info = f"""\
-Consider the following patient information:
-- Age: {user_info['age']}
-- Gender: {user_info['gender']}
-- Location: {user_info['location']}
-- Race: {user_info['race']}"""
-
-prompt_json_output = """\
+class DermatologistBot:
+    def __init__(self):
+        system_instruction = "You are an expert dermatologist specializing in skin conditions."
+        self.diagnose_model = genai.GenerativeModel("models/gemini-1.5-pro-latest", system_instruction=system_instruction, generation_config={"response_mime_type": "application/json"})
+        self.chat_model = genai.GenerativeModel("models/gemini-1.5-pro-latest", system_instruction=system_instruction)
+        self.transcript_model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+        self.messages = [] # Chat history
+        self.prompt_diagnose = """\
+Your patient has uploaded an additional media to help you diagnose. Analyze the file provided and come up with a possible diagnosis and a treatment plan. 
+Provide the analysis in detailed paragraphs and include bullet points where necessary.
 Using this JSON schema:
     SkinCondition = {
         "condition_name": str
@@ -44,53 +34,59 @@ Using this JSON schema:
         "common_treatments": str
         "recommendations": str
     }
-Return a `SkinCondition`"""
-
-prompt_diagnose = f"""\
-You are an expert dermatologist specializing in skin conditions. Analyze the file provided and come up with a possible diagnosis and a treatment plan. 
-{prompt_user_info}
-Provide the analysis in detailed paragraphs and include bullet points where necessary.
-{prompt_json_output}
+Return a `SkinCondition`
 """
-
-@gemini_retry
-def generate_response(prompt) -> str:
-    messages.append({'role': 'user', 'parts': [prompt]})
-    response = chat_model.generate_content(messages)
-    messages.append(response.candidates[0].content)
-    return response.text
-
-@gemini_retry
-def process_file(file_path) -> dict:
+        return
     
-    # upload file
-    file = genai.upload_file(path=file_path)
-
-    # verify the API has successfully received the files
-    while file.state.name == "PROCESSING":
-        time.sleep(1)
-        file = genai.get_file(file.name)
-
-    if file.state.name == "FAILED":
-        raise ValueError(file.state.name)
+    def update_user_info(self, user_info):
+        system_instruction = f"""\
+You are an expert dermatologist specializing in skin conditions.
+You are being the consultant for the patient with following information:
+- Age: {user_info['age']}
+- Gender: {user_info['gender']}
+- Location: {user_info['location']}
+- Race: {user_info['race']}
+"""
+        self.diagnose_model = genai.GenerativeModel("models/gemini-1.5-pro-latest", system_instruction=system_instruction, generation_config={"response_mime_type": "application/json"})
+        self.chat_model = genai.GenerativeModel("models/gemini-1.5-pro-latest", system_instruction=system_instruction)
+        return 
     
-    # generate response
-    prompt = prompt_diagnose
-    messages.append({'role': 'user', 'parts': [file, prompt]})
-    response = diagnose_model.generate_content(messages, request_options={"timeout": 60})
-    messages.append(response.candidates[0].content)
-    return json.loads(response.text)
+    @gemini_retry
+    def generate_response(self, prompt) -> str:
+        self.messages.append({'role': 'user', 'parts': [prompt]})
+        response = self.chat_model.generate_content(self.messages)
+        self.messages.append(response.candidates[0].content)
+        return response.text
 
-@gemini_retry
-def get_transcript(mime_type: str, audio_data: bytes) -> str:
-    prompt = "Generate a transcript of the speech. If no speech transcript is available, return empty string."
-    response = transcript_model.generate_content([
-        prompt,
-        {
-            "mime_type": mime_type,
-            "data": audio_data
-        }
-    ])
-    return response.text.strip()
+    @gemini_retry
+    def process_file(self, file_path) -> dict:
+        
+        # upload file
+        file = genai.upload_file(path=file_path)
 
-    
+        # verify the API has successfully received the files
+        while file.state.name == "PROCESSING":
+            time.sleep(1)
+            file = genai.get_file(file.name)
+
+        if file.state.name == "FAILED":
+            raise ValueError(file.state.name)
+        
+        # generate response
+        prompt = self.prompt_diagnose
+        self.messages.append({'role': 'user', 'parts': [file, prompt]})
+        response = self.diagnose_model.generate_content(self.messages, request_options={"timeout": 60})
+        self.messages.append(response.candidates[0].content)
+        return json.loads(response.text)
+
+    @gemini_retry
+    def get_transcript(self, mime_type: str, audio_data: bytes) -> str:
+        prompt = "Generate a transcript of the speech. If no speech transcript is available, return empty string."
+        response = self.transcript_model.generate_content([
+            prompt,
+            {
+                "mime_type": mime_type,
+                "data": audio_data
+            }
+        ])
+        return response.text.strip()

@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 import os, shutil
-from multimodal_gemini import process_file, generate_response, get_transcript
+from multimodal_gemini import DermatologistBot
 from markdown import markdown
 
 app = Flask(__name__)
@@ -11,12 +11,13 @@ def home():
     if os.path.exists(app.config['UPLOAD_FOLDER']):
         shutil.rmtree(app.config['UPLOAD_FOLDER'])
     os.makedirs(app.config['UPLOAD_FOLDER'])
+    app.config["BOT"] = DermatologistBot()
     return render_template('index.html')
 
 @app.route('/chat', methods=['POST'])
 def chat():
     user_message = request.form['message']
-    response = generate_response(user_message)
+    response = app.config["BOT"].generate_response(user_message)
     return jsonify({'message': markdown(response)}), 200
 
 @app.route('/transcript', methods=['POST'])
@@ -25,7 +26,7 @@ def transcript():
         return "No audio file in request", 400
     
     audio_file = request.files['audio']
-    transcript = get_transcript(audio_file.content_type, audio_file.read())
+    transcript = app.config["BOT"].get_transcript(audio_file.content_type, audio_file.read())
     return jsonify({'transcript': transcript}), 200
 
 @app.route('/upload_media', methods=['POST'])
@@ -43,7 +44,7 @@ def upload_media():
 
 @app.route('/media_analyze', methods=['POST'])
 def media_analyze():
-    response = process_file(request.form['message'])
+    response = app.config["BOT"].process_file(request.form['message'])
     diagnose = "# Diagnose\n\n" + "\n\n".join([f"## {key.replace('_', ' ')}\n\n{value}" for key, value in response.items()])
     return jsonify({'message': markdown(diagnose)})
 
