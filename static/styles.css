@@ -139,3 +139,42 @@ p {
 #imageUpload {
     display: none;
 }
+
+/* #questionnaire {
+    background: #f0f0f0;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+} */
+#questionnaire div {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+#questionnaire label {
+    width: 80px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+#questionnaire input[type="text"] {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+#submit {
+    width: 100%;
+    padding: 10px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+#submit:hover {
+    background-color: #218838;
+}
