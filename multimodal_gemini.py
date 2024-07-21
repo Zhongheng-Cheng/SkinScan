@@ -17,7 +17,7 @@ gemini_retry = retry.Retry(
 
 class DermatologistBot:
     def __init__(self):
-        system_instruction = "You are an expert dermatologist specializing in skin conditions."
+        system_instruction = "You are an expert dermatologist specializing in skin conditions. Try you best to diagnose patient's skin condition."
         self.diagnose_model = genai.GenerativeModel("models/gemini-1.5-pro-latest", system_instruction=system_instruction, generation_config={"response_mime_type": "application/json"})
         self.chat_model = genai.GenerativeModel("models/gemini-1.5-pro-latest", system_instruction=system_instruction)
         self.transcript_model = genai.GenerativeModel(model_name="gemini-1.5-flash")
@@ -37,19 +37,6 @@ Using this JSON schema:
 Return a `SkinCondition`
 """
         return
-    
-    def update_user_info(self, user_info):
-        system_instruction = f"""\
-You are an expert dermatologist specializing in skin conditions.
-You are being the consultant for the patient with following information:
-- Age: {user_info['age']}
-- Gender: {user_info['gender']}
-- Location: {user_info['location']}
-- Race: {user_info['race']}
-"""
-        self.diagnose_model = genai.GenerativeModel("models/gemini-1.5-pro-latest", system_instruction=system_instruction, generation_config={"response_mime_type": "application/json"})
-        self.chat_model = genai.GenerativeModel("models/gemini-1.5-pro-latest", system_instruction=system_instruction)
-        return 
     
     @gemini_retry
     def generate_response(self, prompt) -> str:

@@ -31,8 +31,30 @@
         const microphone_off = 'static/microphone_off.png';
         const microphone_on = 'static/microphone_on.png';
 
+        const questionnaire = ' \
+        <form id="questionnaire"> \
+            <div> \
+                <label for="age">Age:</label> \
+                <input type="text" id="age" name="age"> \
+            </div> \
+            <div> \
+                <label for="gender">Gender:</label> \
+                <input type="text" id="gender" name="gender"> \
+            </div> \
+            <div> \
+                <label for="location">Location:</label> \
+                <input type="text" id="location" name="location"> \
+            </div> \
+            <div> \
+                <label for="race">Race:</label> \
+                <input type="text" id="race" name="race"> \
+            </div> \
+            <button type="submit" id="submit">Submit</button> \
+        </form>'
+        questionnaire_id = sendTmpMessage(botAvatar, questionnaire);
+
         function sendTmpMessage(avatar, message) {
-            const analyzingMessageId = `analyzing-${Date.now()}`;
+            const analyzingMessageId = `tmp-message-${Date.now()}`;
             const botAnalyzingMessage = document.createElement('div');
             botAnalyzingMessage.id = analyzingMessageId;
             botAnalyzingMessage.classList.add('message-container', 'bot-message');
@@ -77,6 +99,26 @@
             userMessageDiv.innerHTML = `<img src=${userAvatar} class="avatar"><div class="message">${content}</div>`;
             chatbox.appendChild(userMessageDiv);
         }
+
+        function formDataToString(formData) {
+            const entries = formData.entries();
+            const data = {};
+            for (const [key, value] of entries) {
+                data[key] = value;
+            }
+            return `Here is my information, which may help you better analyze my skin conditions: age: ${data.age}; gender: ${data.gender}; location: ${data.location}; race: ${data.race}`;
+        }
+
+        document.getElementById('questionnaire').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            user_info_message = formDataToString(formData);
+            const questionnaire_message = document.getElementById(questionnaire_id);
+            questionnaire_message.innerHTML = `<img src=${botAvatar} class="avatar"><div class="message">Thank you! Your information is submitted.</div>`
+
+            generateResponse("/chat", user_info_message);
+        });
 
         document.getElementById('input-area').addEventListener('submit', function(event) {
             event.preventDefault();
