@@ -23,7 +23,7 @@
         <div id="chatbox"></div>
         <form id="input-area">
             <div id="input-container">
-                <input type="text" id="message" placeholder="Type a message...">
+                <input type="text" id="message" placeholder="Hi, doctor! I have some skin conditions...">
                 <button id="recordButton" type="button">
                     <img src="static/microphone_off.png" alt="Microphone" id="micIcon">
                 </button>
@@ -160,12 +160,13 @@
         document.getElementById('input-area').addEventListener('submit', function(event) {
             event.preventDefault();
             const messageInput = document.getElementById('message');
-            const message = messageInput.value.trim();
+            let message = messageInput.value.trim();
             messageInput.value = '';
-            if (message !== '') {
-                sendUserMessage(message);
-                generateResponse("/chat", message);
+            if (message === '') {
+                message = document.getElementById("message").placeholder;
             }
+            sendUserMessage(message);
+            generateResponse("/chat", message);
         });
 
         document.getElementById('imageButton').addEventListener('click', function() {
