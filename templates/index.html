@@ -2,29 +2,47 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Chatbox</title>
+    <title>Dermatologist Chatbox - Healthi.AI</title>
+    <link rel="icon" href="{{ url_for('static', filename='healthiai_logo.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div id="chat-container">
-        <div id="chat-header">
-            <h1>Chatbox</h1>
+        <div id="chat-header" class="header">
+            <img src="static/healthiai_logo.png" alt="HealthiAI_Logo">
+            <div class="healthiai-logo">Healthi.AI</div>
+            <div class="username">username</div>
+            <img src="static/mask.png" alt="User Avatar" class="Avatar">
         </div>
+        <div id="chat-nav" class="header">
+            <div id="nav-title">Chatbox</div>
+            <div class="nav-separator">&rsaquo;</div>
+            <div id="nav-username" class="username">username</div>
+        </div>
+        
         <div id="chatbox"></div>
         <form id="input-area">
             <div id="input-container">
+                <input type="text" id="message" placeholder="Type a message...">
                 <button id="recordButton" type="button">
                     <img src="static/microphone_off.png" alt="Microphone" id="micIcon">
                 </button>
-                <input type="text" id="message" placeholder="Type a message...">
+                <input type="file" id="mediaUpload" accept="image/*, video/*" style="display: none;">
+                <button id="imageButton" type="button">
+                    <img src="static/image.png" alt="image" id="imageIcon">
+                </button>
             </div>
-            <button type="submit" id="send">Send</button>
-            <label for="mediaUpload" id="file-upload">Upload Media</label>
-            <input type="file" id="mediaUpload" accept="image/*, video/*" style="display: none;">
         </form>
     </div>
 
     <script>
+        var username = "Zhongheng";
+        var usernameDivs = document.querySelectorAll('.username');
+        usernameDivs.forEach(function(div) {
+            div.textContent = username;
+        });
+
+
         const userAvatar = 'static/mask.png';
         const botAvatar = 'static/doctor.png';
         const scanAvatar = 'static/scan.png';
@@ -33,7 +51,8 @@
 
         const questionnaire = ' \
         <form id="questionnaire"> \
-            <p>Please provide the following information so that we can better analyze your skin condition.</p>\
+            <p>Please provide the following information so that we can better analyze your skin condition.</p> \
+            <br> \
             <div> \
                 <label for="age">Age:</label> \
                 <input type="text" id="age" name="age"> \
@@ -51,6 +70,7 @@
                 <input type="text" id="race" name="race"> \
             </div> \
             <p><i>*Your information will <b>NOT</b> be shared with anyone, and <b>ONLY</b> be available for this session.</i></p>\
+            <br> \
             <button type="submit" id="submit">Submit</button> \
         </form>'
         questionnaire_id = sendTmpMessage(botAvatar, questionnaire);
@@ -131,6 +151,10 @@
                 sendUserMessage(message);
                 generateResponse("/chat", message);
             }
+        });
+
+        document.getElementById('imageButton').addEventListener('click', function() {
+            document.getElementById('mediaUpload').click();
         });
 
         document.getElementById('mediaUpload').addEventListener('change', function() {
