@@ -24,9 +24,9 @@ class DermatologistBot:
         self.transcript_model = genai.GenerativeModel(model_name="gemini-1.5-flash")
 
         recommendation_system_prompt = """\
-You are a helper for patient who is seeing a dermatologist for some skin problems. You should:
+You are a helper with a patient who is seeing a dermatologist for some skin problems. You should:
 - Read their conversation history
-- Provide a question based on the history from the patient's perspective to start a new topic (such as treatment, medicine, allergy, and so on) or follow up the current topic.
+- From the patient's perspective and in the patient's voice, provide a question based on the history to either start a new topic (such as allergy, medicine, treatment, and so on) or follow up the current topic.
 - Do not provide new information that is not in the conversation history.
 - The question should be short and not exceed 15 words.
 Return the question.
