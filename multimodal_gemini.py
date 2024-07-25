@@ -20,7 +20,19 @@ class DermatologistBot:
         system_instruction = "You are an expert dermatologist specializing in skin conditions. Try you best to diagnose patient's skin condition."
         self.diagnose_model = genai.GenerativeModel("models/gemini-1.5-pro-latest", system_instruction=system_instruction, generation_config={"response_mime_type": "application/json"})
         self.chat_model = genai.GenerativeModel("models/gemini-1.5-pro-latest", system_instruction=system_instruction)
+
         self.transcript_model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+
+        recommendation_system_prompt = """\
+You are a helper for patient who is seeing a dermatologist for some skin problems. You should:
+- Read their conversation history
+- Provide a question based on the history from the patient's perspective to start a new topic (such as treatment, medicine, allergy, and so on) or follow up the current topic.
+- Do not provide new information that is not in the conversation history.
+- The question should be short and not exceed 15 words.
+Return the question.
+"""
+        self.recommendation_model = genai.GenerativeModel("models/gemini-1.5-flash", system_instruction=recommendation_system_prompt)
+
         self.messages = [] # Chat history
         self.prompt_diagnose = """\
 Your patient has uploaded an additional media to help you diagnose. Analyze the file provided and come up with a possible diagnosis and a treatment plan. 
@@ -76,4 +88,10 @@ Return a `SkinCondition`
                 "data": audio_data
             }
         ])
+        return response.text.strip()
+    
+    @gemini_retry
+    def recommand_question(self) -> str:
+        prompt = f"Read the conversation history and provide a question. \nConversation history: {self.messages}"
+        response = self.recommendation_model.generate_content(prompt)
         return response.text.strip()

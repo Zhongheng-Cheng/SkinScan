@@ -49,5 +49,10 @@ def media_analyze():
     diagnose = "# Diagnose\n\n" + "\n\n".join([f"## {key.replace('_', ' ')}\n\n{value}" for key, value in response.items()])
     return jsonify({'message': markdown(diagnose)})
 
+@app.route("/get-recommand-question", methods=["GET"])
+def get_recommand_question():
+    response = bot.recommand_question()
+    return jsonify({'recommand_question': response})
+
 if __name__ == '__main__':
     app.run(debug=True)

@@ -111,6 +111,21 @@
                     tmpMessageElement.innerHTML = `<img src=${avatar} class="avatar"><div class="message">${data.message}</div>`;
                 }
                 chatbox.scrollTop = chatbox.scrollHeight;
+                show_recommand_question();
+            });
+        }
+
+        function show_recommand_question() {
+            fetch("/get-recommand-question", {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.recommand_question)
+                document.getElementById("message").placeholder=data.recommand_question;
             });
         }
 
