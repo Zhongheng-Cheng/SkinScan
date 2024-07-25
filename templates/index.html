@@ -23,7 +23,7 @@
         <div id="chatbox"></div>
         <form id="input-area">
             <div id="input-container">
-                <input type="text" id="message" placeholder="Type a message...">
+                <input type="text" id="message" placeholder="Hi, doctor! I have some skin conditions...">
                 <button id="recordButton" type="button">
                     <img src="static/microphone_off.png" alt="Microphone" id="micIcon">
                 </button>
@@ -111,6 +111,21 @@
                     tmpMessageElement.innerHTML = `<img src=${avatar} class="avatar"><div class="message">${data.message}</div>`;
                 }
                 chatbox.scrollTop = chatbox.scrollHeight;
+                show_recommand_question();
+            });
+        }
+
+        function show_recommand_question() {
+            fetch("/get-recommand-question", {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.recommand_question)
+                document.getElementById("message").placeholder=data.recommand_question;
             });
         }
 
@@ -145,12 +160,13 @@
         document.getElementById('input-area').addEventListener('submit', function(event) {
             event.preventDefault();
             const messageInput = document.getElementById('message');
-            const message = messageInput.value.trim();
+            let message = messageInput.value.trim();
             messageInput.value = '';
-            if (message !== '') {
-                sendUserMessage(message);
-                generateResponse("/chat", message);
+            if (message === '') {
+                message = document.getElementById("message").placeholder;
             }
+            sendUserMessage(message);
+            generateResponse("/chat", message);
         });
 
         document.getElementById('imageButton').addEventListener('click', function() {
