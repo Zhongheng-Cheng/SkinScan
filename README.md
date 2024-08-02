@@ -4,8 +4,8 @@
 
 ```bash
 # Cloning the repository
-git clone https://github.com/Zhongheng-Cheng/chatbox-demo
-cd chatbox-demo
+git clone https://github.com/Zhongheng-Cheng/SkinScan
+cd SkinScan
 
 # [Optional] Creating virtual environment
 python -m venv venv
