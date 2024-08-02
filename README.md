@@ -1,4 +1,4 @@
-# chatbox-demo
+# SkinScan
 
 ## Installation
 
