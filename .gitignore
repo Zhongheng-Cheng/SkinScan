@@ -2,6 +2,7 @@ example_uploads/
 tmp_*/
 *.ipynb
 qdrant_storage/
+*.index
 
 # System files
 .DS_Store
@@ -134,6 +135,7 @@ celerybeat.pid
 .venv
 env/
 venv/
+venv_*/
 ENV/
 env.bak/
 venv.bak/

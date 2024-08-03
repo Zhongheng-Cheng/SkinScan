@@ -2,3 +2,6 @@ flask
 python-dotenv
 google-generativeai
 markdown
+llama-index
+llama-index-llms-gemini
+llama-index-embeddings-huggingface
