@@ -42,46 +42,43 @@ def get_index(update_data=False, save_index=True):
 
     return index
 
+def get_query_engine():
 
-template = """
-You are a knowledgeable and precise assistant specialized in question-answering tasks, particularly from Dermatology resources.
-Your goal is to provide accurate, concise, and contextually relevant answers based on the given information.
-
-Instructions:
-
-Comprehension and Accuracy: Carefully read and comprehend the provided context from the article to ensure accuracy in your response.
-Conciseness: Deliver the answer in no more than three sentences, ensuring it is concise and directly addresses the question.
-Truthfulness: If the context does not provide enough information to answer the question, clearly state, "I don't know."
-Contextual Relevance: Ensure your answer is well-supported by the retrieved context and does not include any information beyond what is provided.
-
-Remember if no context is provided please say you don't know the answer
-Here is the question and context for you to work with:
+    template = """
+You are an expert dermatologist specializing in skin conditions. 
+Try you best to diagnose patient's skin condition. 
+Answer according to the given context where available.
 
 \nQuestion: {question} \nContext: {context} \nAnswer:"""
 
-prompt_tmpl = PromptTemplate(
-    template = template,
-    template_var_mappings = {"query_str": "question", "context_str": "context"},
-)
+    prompt_tmpl = PromptTemplate(
+        template = template,
+        template_var_mappings = {"query_str": "question", "context_str": "context"},
+    )
 
-# configure retriever
-retriever = VectorIndexRetriever(
-    index = get_index(),
-    similarity_top_k = 10,
-)
+    index = get_index()
 
-# configure response synthesizer
-response_synthesizer = get_response_synthesizer()
+    # configure retriever
+    retriever = VectorIndexRetriever(
+        index = index,
+        similarity_top_k = 10,
+    )
 
-# assemble query engine
-query_engine = RetrieverQueryEngine(
-    retriever = retriever,
-    response_synthesizer = response_synthesizer,
-)
+    # configure response synthesizer
+    response_synthesizer = get_response_synthesizer()
 
-query_engine.update_prompts(
-    {"response_synthesizer:text_qa_template": prompt_tmpl}
-)
+    # assemble query engine
+    query_engine = RetrieverQueryEngine(
+        retriever = retriever,
+        response_synthesizer = response_synthesizer,
+    )
 
-response = query_engine.query("What are some tips for caring for my sensitive skin, especially on my face?")
-print(response)
+    query_engine.update_prompts(
+        {"response_synthesizer:text_qa_template": prompt_tmpl}
+    )
+
+    return query_engine
+
+def query_response(query_engine, question):
+    response = query_engine.query(question)
+    return response
