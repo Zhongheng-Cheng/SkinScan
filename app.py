@@ -54,5 +54,9 @@ def get_recommand_question():
     response = bot.recommand_question()
     return jsonify({'recommand_question': response})
 
+@app.route("/chat-history", methods=["GET"])
+def get_chat_history():
+    return jsonify({'chat_history': str(bot.messages)})
+
 if __name__ == '__main__':
     app.run(debug=True)
