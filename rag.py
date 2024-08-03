@@ -45,11 +45,27 @@ def get_index(update_data=False, save_index=True):
 def get_query_engine():
 
     template = """
-You are an expert dermatologist specializing in skin conditions. 
-Try you best to diagnose patient's skin condition. 
-Answer according to the given context where available.
+You are a knowledgeable and precise assistant specialized in question-answering tasks, particularly from Dermatology resources.
+Your goal is to provide accurate, concise, and contextually relevant answers based on the given information.
+
+Instructions:
+
+Comprehension and Accuracy: Carefully read and comprehend the provided context from the article to ensure accuracy in your response.
+Conciseness: Deliver the answer in no more than three sentences, ensuring it is concise and directly addresses the question.
+Truthfulness: If the context does not provide enough information to answer the question, clearly state, "I don't know."
+Contextual Relevance: Ensure your answer is well-supported by the retrieved context and does not include any information beyond what is provided.
+
+Remember if no context is provided please say you don't know the answer
+Here is the question and context for you to work with:
 
 \nQuestion: {question} \nContext: {context} \nAnswer:"""
+
+#     template = """
+# You are an expert dermatologist specializing in skin conditions. 
+# Try you best to diagnose patient's skin condition. 
+# Answer according to the given context where available.
+
+# \nQuestion: {question} \nContext: {context} \nAnswer:"""
 
     prompt_tmpl = PromptTemplate(
         template = template,
