@@ -30,7 +30,7 @@ scrape_tool = ScrapeWebsiteTool()
 
 dermatology_agent = Agent(
     role='Dermatologist',
-    goal='Provide accurate and helpful dermatology-related information and advice.',
+    goal='Provide accurate and helpful dermatology-related information and advice. Search the Internet when it is necessary for answering specific questions',
     backstory="""You are a dermatologist specializing in providing information and advice on skin conditions,
     treatments, and skincare practices. Your goal is to assist users with their dermatology-related queries
     by leveraging both search results and advanced language models.""",

@@ -4,3 +4,4 @@ google-generativeai
 markdown
 crewai
 crewai[tools]
+langchain-google-genai

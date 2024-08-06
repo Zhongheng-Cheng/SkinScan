@@ -7,7 +7,7 @@ load_dotenv("GOOGLE_API_KEY")
 google_api_key = os.getenv("GOOGLE_API_KEY")
 genai.configure(api_key=google_api_key)
 from google.api_core import retry
-from rag import get_query_engine, query_response
+from crewai_web_search import crew
 
 gemini_retry = retry.Retry(
     initial=2.0,
@@ -54,9 +54,7 @@ Return a `SkinCondition`
     @gemini_retry
     def generate_response(self, prompt) -> str:
         self.messages.append({'role': 'user', 'parts': [prompt]})
-        query_engine = get_query_engine()
-        query_result = query_response(query_engine, str(self.messages))
-        print(query_result)
+        print(crew.kickoff({"question": str(self.messages)}))
         response = self.chat_model.generate_content(self.messages)
         self.messages.append(response.candidates[0].content)
         return response.text
