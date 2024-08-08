@@ -49,12 +49,9 @@ pdf_search_tool = PDFSearchTool(
                 task_type="retrieval_document"
             )
         ),
-        config=dict(
-            path="./Dataset",
-            scope="Common_Skin_diseases.pdf"
-        )
     ),
-    api_key=google_api_key
+    api_key=google_api_key,
+    pdf = "./Dataset/Common_Skin_diseases.pdf"
 )
 
 
@@ -63,7 +60,8 @@ dermatology_agent = Agent(
     goal='Provide accurate and helpful dermatology-related information and advice. Search the Internet when it is necessary for answering specific questions',
     backstory="""You are a dermatologist specializing in providing information and advice on skin conditions, treatments, and skincare practices. Your goal is to assist users with their dermatology-related queries by leveraging both search results and advanced language models.""",
     llm=gemini,
-    tools=[search_tool, scrape_tool, pdf_search_tool],
+    # tools=[search_tool, scrape_tool, pdf_search_tool],
+    tools=[pdf_search_tool],
     verbose=False,
 )
 
@@ -96,7 +94,8 @@ pdf_answering_task = Task(
 
 crew = Crew(
     agents=[dermatology_agent],
-    tasks=[answering_task, pdf_answering_task],
+    # tasks=[answering_task, pdf_answering_task],
+    tasks=[pdf_answering_task],
     verbose=False,
 )
 
