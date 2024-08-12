@@ -22,3 +22,7 @@ touch .env
 # Run the project
 python app.py
 ```
+
+## Demo Video
+
+[SkinScan demo video - Google Drive](https://drive.google.com/file/d/1F1nKQVgbT7sY_a0bdngg-V7cqawF9vdx/view?usp=sharing)
