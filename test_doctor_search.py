@@ -13,13 +13,23 @@ def find_doctor(location: str) -> dict:
         "specialty": "Dermatology"
     }
 
-model = genai.GenerativeModel(model_name="gemini-1.5-flash", tools=find_doctor)
+def recommend_product() -> dict:
+    """Recommend a product for facial issues"""
+    return {
+        "name": "Sample Product",
+        "Description": "Good for treating dermatology issues on face.",
+        "Price": 10
+    }
+
+model = genai.GenerativeModel(model_name="gemini-1.5-flash", tools=[find_doctor, recommend_product])
 chat = model.start_chat()
 
 
 # prompt = "Hi, how are you doing?"
 # prompt = "I have some problems with my face"
-prompt = "I am in New York, which doctor can I turn to right now?"
+# prompt = "I am in New York, which doctor can I turn to right now?"
+prompt = "How can I treat this problem on my face?"
+# prompt = "Can you recommend some product for me to use?"
 
 response = chat.send_message(prompt)
 print(response.parts)
