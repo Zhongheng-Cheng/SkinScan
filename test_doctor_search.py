@@ -4,17 +4,18 @@ load_dotenv()
 google_api_key = os.getenv("GOOGLE_API_KEY")
 import google.generativeai as genai
 genai.configure(api_key=google_api_key)
+from typing import List, Dict
 
 # Toy function to return doctor information
-def find_doctor(location: str) -> dict:
+def find_doctor(location: str) -> Dict:
     """Finds the nearest doctor"""
     return {
         "name": "John Doe",
         "specialty": "Dermatology"
     }
 
-def recommend_product() -> dict:
-    """Recommend a product for facial issues"""
+def recommend_product(keywords: List[str]) -> Dict:
+    """Recommend a product based on the keywords for facial issues"""
     return {
         "name": "Sample Product",
         "Description": "Good for treating dermatology issues on face.",
@@ -45,7 +46,7 @@ def chat_once(prompt):
 
             # manually call the function
             expression = f"{fn.name}({args})"
-            print("Function calling: " + expression)
+            print("[Function calling] " + expression)
             result = eval(expression)
 
             # storing the function output
