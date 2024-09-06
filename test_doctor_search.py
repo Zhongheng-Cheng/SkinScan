@@ -5,10 +5,18 @@ google_api_key = os.getenv("GOOGLE_API_KEY")
 import google.generativeai as genai
 genai.configure(api_key=google_api_key)
 from typing import List, Dict
+import csv
 
 # Toy function to return doctor information
 def find_doctor(location: str) -> Dict:
     """Finds the nearest doctor"""
+    with open('doctor_information.csv', newline='', encoding='utf-8') as csvfile:
+        csvreader = csv.reader(csvfile)
+        header = next(csvreader)
+        print("Header:", header)
+        
+        for row in csvreader:
+            print("Row:", row)
     return {
         "name": "John Doe",
         "specialty": "Dermatology"
@@ -63,9 +71,11 @@ def chat_once(prompt):
         response = chat.send_message(response_parts)
         print(response.text)
 
-while True:
-    prompt = input(">>> ")
-    chat_once(prompt)
+if __name__ == "__main__":
+    # while True:
+        # prompt = input(">>> ")
+        # chat_once(prompt)
+    find_doctor("ddd")
 
 
 # Reference: https://ai.google.dev/gemini-api/docs/function-calling/tutorial?lang=python
