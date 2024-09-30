@@ -2,3 +2,4 @@ flask
 python-dotenv
 google-generativeai
 markdown
+psycopg2
