@@ -11,13 +11,14 @@
         <div id="chat-header" class="header">
             <img src="static/healthiai_logo.png" alt="HealthiAI_Logo">
             <div class="healthiai-logo">Healthi.AI</div>
-            <div class="username">username</div>
+            <div class="username">{{ username }}</div>
             <img src="static/mask.png" alt="User Avatar" class="Avatar">
+            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
         </div>
         <div id="chat-nav" class="header">
             <div id="nav-title">Chatbox</div>
             <div class="nav-separator">&rsaquo;</div>
-            <div id="nav-username" class="username">username</div>
+            <div id="nav-username" class="username">{{ username }}</div>
         </div>
         
         <div id="chatbox"></div>
@@ -36,11 +37,11 @@
     </div>
 
     <script>
-        var username = "Zhongheng";
-        var usernameDivs = document.querySelectorAll('.username');
-        usernameDivs.forEach(function(div) {
-            div.textContent = username;
-        });
+        // var username = "Zhongheng";
+        // var usernameDivs = document.querySelectorAll('.username');
+        // usernameDivs.forEach(function(div) {
+        //     div.textContent = username;
+        // });
 
 
         const userAvatar = 'static/mask.png';

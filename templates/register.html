@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - Healthi.AI</title>
+    <link rel="icon" href="{{ url_for('static', filename='healthiai_logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-header" class="header">
+            <img src="static/healthiai_logo.png" alt="HealthiAI_Logo">
+            <div class="healthiai-logo">Healthi.AI</div>
+        </div>
+        <div id="chat-nav" class="header">
+            <div id="nav-title">Register</div>
+        </div>
+        
+        <div id="register-box">
+            <form method="POST" action="{{ url_for('register') }}">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="submit-btn">Register</button>
+            </form>
+            <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+        </div>
+    </div>
+</body>
+</html>

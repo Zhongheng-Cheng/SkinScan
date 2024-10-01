@@ -195,3 +195,73 @@ p {
 #submit:hover {
     background-color: #218838;
 }
+
+.flash-messages {
+    margin-bottom: 20px;
+}
+
+.flash-message {
+    padding: 10px;
+    border: 1px solid red;
+    background-color: #f8d7da;
+    color: red;
+    font-weight: bold;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    text-align: center; 
+}
+
+#login-box, #register-box {
+    background-color: #f0f0f0;
+    padding: 20px;
+    border-radius: 5px;
+    margin: 20px auto;
+    max-width: 400px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    width: 95%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.submit-btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.submit-btn:hover {
+    background-color: #0056b3;
+}
+
+#login-box p, #register-box p {
+    margin-top: 15px;
+    text-align: center;
+}
+
+#login-box a, #register-box a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+#login-box a:hover, #register-box a:hover {
+    text-decoration: underline;
+}
