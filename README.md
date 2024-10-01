@@ -23,6 +23,8 @@ SkinScan AI is a revolutionary telemedicine platform that leverages Artificial I
 
 To start using the platform, follow these steps:
 
+### Environment Setup
+
 ```bash
 # Cloning the repository
 git clone https://github.com/Zhongheng-Cheng/SkinScan
@@ -39,8 +41,34 @@ pip install -r requirements.txt
 touch .env
 # Enter your Google Gemini API Key in ".env" like this:
 # GOOGLE_API_KEY="..."
+```
 
-# Run the project
+### Database Setup
+
+The application now relies on the Postgresql database. Run the following commands to set up the database in Docker.
+
+```bash
+docker pull postgres
+docker run --name my_postgres -e POSTGRES_USER=healthiai -e POSTGRES_PASSWORD=healthiai -e POSTGRES_DB=skin_scan_db -p 5432:5432 -d postgres
+# (optional) Use `docker ps` to check image availability
+docker exec -it my_postgres psql -U healthiai -d skin_scan_db
+```
+
+In the Postgresql command line:
+
+```
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
+```
+
+Then, use the `exit` command to exit the Postgresql command line.
+
+### Run the project
+
+```bash
 python app.py
 ```
 
