@@ -2,8 +2,8 @@ import google.generativeai as genai
 import time
 import json
 import os
-from dotenv import load_dotenv
-load_dotenv("GOOGLE_API_KEY")
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
 google_api_key = os.getenv("GOOGLE_API_KEY")
 genai.configure(api_key=google_api_key)
 from google.api_core import retry
