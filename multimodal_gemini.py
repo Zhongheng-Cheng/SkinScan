@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 google_api_key = os.getenv("GOOGLE_API_KEY")
+assert google_api_key, "Google API KEY not found!"
 genai.configure(api_key=google_api_key)
 from google.api_core import retry
 
