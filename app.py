@@ -19,16 +19,25 @@ def get_db_connection():
     )
     return conn
 
+@app.route('/guest')
+def guest_login():
+    session['guest'] = True
+    return redirect(url_for('home'))
+
 @app.route('/')
 def home():
+    global bot
+    if 'guest' in session and session['guest']:
+        bot = DermatologistBot()
+        return render_template('index.html', username='Guest', guest=True)
     if 'username' not in session:
         return redirect(url_for('login'))
-    global bot
+    
     if os.path.exists(app.config['UPLOAD_FOLDER']):
         shutil.rmtree(app.config['UPLOAD_FOLDER'])
     os.makedirs(app.config['UPLOAD_FOLDER'])
     bot = DermatologistBot()
-    return render_template('index.html', username=session['username'])
+    return render_template('index.html', username=session['username'], guest=False)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -67,6 +76,7 @@ def login():
         
         if user and check_password_hash(user[1], password):
             session['username'] = username
+            session.pop('guest', None)  # Clear guest session if user logs in
             return redirect(url_for('home'))
         else:
             flash('Invalid username or password', 'error')
@@ -75,13 +85,22 @@ def login():
 
 @app.route('/logout')
 def logout():
-    session.pop('username', None)
+    if 'guest' in session and session['guest']:
+        session.pop('guest', None)
+    else:
+        session.pop('username', None)
     return redirect(url_for('login'))
 
 @app.route('/chat', methods=['POST'])
 def chat():
+    if 'guest' in session and session['guest']:
+        user_message = request.form['message']
+        response = bot.generate_response(user_message)
+        return jsonify({'message': markdown(response)}), 200
+
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
+
     user_message = request.form['message']
     response = bot.generate_response(user_message)
     return jsonify({'message': markdown(response)}), 200

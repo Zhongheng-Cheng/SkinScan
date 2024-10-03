@@ -43,37 +43,36 @@
         //     div.textContent = username;
         // });
 
-
         const userAvatar = 'static/mask.png';
         const botAvatar = 'static/doctor.png';
         const scanAvatar = 'static/scan.png';
         const microphone_off = 'static/microphone_off.png';
         const microphone_on = 'static/microphone_on.png';
 
-        const questionnaire = ' \
-        <form id="questionnaire"> \
-            <p>Please provide the following information so that we can better analyze your skin condition.</p> \
-            <br> \
-            <div> \
-                <label for="age">Age:</label> \
-                <input type="text" id="age" name="age"> \
-            </div> \
-            <div> \
-                <label for="gender">Gender:</label> \
-                <input type="text" id="gender" name="gender"> \
-            </div> \
-            <div> \
-                <label for="location">Location:</label> \
-                <input type="text" id="location" name="location"> \
-            </div> \
-            <div> \
-                <label for="race">Race:</label> \
-                <input type="text" id="race" name="race"> \
-            </div> \
-            <p><i>*Your information will <b>NOT</b> be shared with anyone, and <b>ONLY</b> be available for this session.</i></p>\
-            <br> \
-            <button type="submit" id="submit">Submit</button> \
-        </form>'
+        const questionnaire = `
+        <form id="questionnaire">
+            <p>Please provide the following information so that we can better analyze your skin condition.</p>
+            <br>
+            <div>
+                <label for="age">Age:</label>
+                <input type="text" id="age" name="age">
+            </div>
+            <div>
+                <label for="gender">Gender:</label>
+                <input type="text" id="gender" name="gender">
+            </div>
+            <div>
+                <label for="location">Location:</label>
+                <input type="text" id="location" name="location">
+            </div>
+            <div>
+                <label for="race">Race:</label>
+                <input type="text" id="race" name="race">
+            </div>
+            <p><i>*Your information will <b>NOT</b> be shared with anyone, and <b>ONLY</b> be available for this session.</i></p>
+            <br>
+            <button type="submit" id="submit">Submit</button>
+        </form>`;
         questionnaire_id = sendTmpMessage(botAvatar, questionnaire);
 
         function sendTmpMessage(avatar, message) {
@@ -84,7 +83,7 @@
             botAnalyzingMessage.innerHTML = `<img src=${avatar} class="avatar"><div class="message">${message}</div>`;
             chatbox.appendChild(botAnalyzingMessage);
             chatbox.scrollTop = chatbox.scrollHeight;
-            return analyzingMessageId
+            return analyzingMessageId;
         }
 
         function generateResponse(apiCall, message) {
@@ -126,7 +125,7 @@
             .then(response => response.json())
             .then(data => {
                 console.log(data.recommand_question)
-                document.getElementById("message").placeholder=data.recommand_question;
+                document.getElementById("message").placeholder = data.recommand_question;
             });
         }
 
@@ -149,12 +148,10 @@
 
         document.getElementById('questionnaire').addEventListener('submit', function(event) {
             event.preventDefault();
-            
             const formData = new FormData(event.target);
             user_info_message = formDataToString(formData);
             const questionnaire_message = document.getElementById(questionnaire_id);
-            questionnaire_message.innerHTML = `<img src=${botAvatar} class="avatar"><div class="message">Thank you! Your information is submitted.</div>`
-
+            questionnaire_message.innerHTML = `<img src=${botAvatar} class="avatar"><div class="message">Thank you! Your information is submitted.</div>`;
             generateResponse("/chat", user_info_message);
         });
 
@@ -236,7 +233,7 @@
             })
             .then(response => response.json())
             .then(data => {
-                messageInput = document.getElementById("message");
+                const messageInput = document.getElementById("message");
                 const currentText = messageInput.value;
                 messageInput.value = currentText ? currentText + " " + data.transcript : data.transcript;
             })
